@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f0f0f0;
+}
+
+body {
+  background: #f0f0f0;
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 390px;
+  max-width: 100%;
+  min-height: 100svh;
+  position: relative;
+  background: #F9F9F9;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: 'Inter', system-ui, sans-serif;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+}
+
+.page {
+  min-height: 100svh;
+  position: relative;
+  background: #F9F9F9;
+  overflow-x: hidden;
+}
+
+.scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-x::-webkit-scrollbar { display: none; }
+
+/* Bottom sheet overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet {
+  width: 390px;
+  max-width: 100%;
+  background: white;
+  border-radius: 40px 40px 0 0;
+  padding: 24px 24px 40px;
+  position: relative;
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 6px;
+  background: #E0E3E4;
+  border-radius: 999px;
+  margin: 0 auto 32px;
+}
