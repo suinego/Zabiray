@@ -4,7 +4,7 @@ from pathlib import Path
 from django.conf import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .gigachat_service import get_ai_response
+from .gigachat_service import get_ai_response, get_group_summary
 
 DATA_DIR = settings.DATA_DIR
 
@@ -193,4 +193,48 @@ def stats(request):
         'leaderboard':       leaderboard,
         'group_goal':        chats[0]['goal'] if chats else None,
         'participant_count': chats[0]['participant_count'] if chats else 0,
+    })
+
+
+@api_view(['GET'])
+def group_summary(request, chat_id):
+    """
+    GET /api/chats/<id>/summary/
+    Возвращает групповую сводку дня от GigaChat.
+    """
+    chats    = load_chats()
+    chat     = next((c for c in chats if c['id'] == int(chat_id)), None)
+    if chat is None:
+        return Response({'error': 'Not found'}, status=404)
+
+    group_goal = chat['goal']
+
+    # Берём только сообщения пользователей (не AI) за последние 24 часа
+    import time as _time
+    since = int(_time.time()) - 86400
+    messages = load_messages(chat_id=chat_id)
+    today_msgs = [m['message'] for m in messages if not m['is_ai'] and m['date'] >= since]
+
+    # Считаем активность по участникам
+    from collections import Counter
+    user_counts = Counter(m['user_id'] for m in messages if not m['is_ai'] and m['date'] >= since)
+    users = load_users()
+    members_today = [
+        {
+            'user_id':   uid,
+            'user_name': next((u['name']  for u in users if u['id'] == uid), f'User {uid}'),
+            'user_emoji':next((u['emoji'] for u in users if u['id'] == uid), '👤'),
+            'count':     cnt,
+        }
+        for uid, cnt in sorted(user_counts.items(), key=lambda x: -x[1])
+    ]
+
+    result = get_group_summary(group_goal, today_msgs)
+
+    return Response({
+        'ai_comment':    result['text'],
+        'score':         result['score'],
+        'members_today': members_today,
+        'total_today':   len(today_msgs),
+        'group_goal':    group_goal,
     })

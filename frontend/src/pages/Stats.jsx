@@ -91,6 +91,97 @@ function UserActivityList({ user, messages, color }) {
   )
 }
 
+const SBER_SPECIALISTS = [
+  { icon: '🩺', name: 'Терапевт',        visits: [
+    { user: '🧑', name: 'Рома',  date: '18 мар' },
+    { user: '👨', name: 'Иван',  date: '15 мар' },
+    { user: '👦', name: 'Влад',  date: '12 мар' },
+  ]},
+  { icon: '🦷', name: 'Стоматолог',      visits: [
+    { user: '🧑', name: 'Рома',  date: '10 мар' },
+    { user: '👨', name: 'Иван',  date: '5 мар'  },
+  ]},
+  { icon: '🧠', name: 'Психолог',        visits: [
+    { user: '👦', name: 'Влад',  date: '20 мар' },
+  ]},
+  { icon: '🏃', name: 'Спортивный врач', visits: [
+    { user: '🧑', name: 'Рома',  date: '1 мар'  },
+  ]},
+]
+const TOTAL_VISITS = SBER_SPECIALISTS.reduce((s, sp) => s + sp.visits.length, 0)
+
+function SberZdorovyeCard() {
+  const [open, setOpen] = useState(false)
+  const [width, setWidth] = useState(0)
+  useEffect(() => { const t = setTimeout(() => setWidth(Math.min(100, TOTAL_VISITS * 14)), 200); return () => clearTimeout(t) }, [])
+
+  return (
+    <div style={{
+      borderRadius: 28,
+      background: 'linear-gradient(135deg, #E0F8F7 0%, #F0FFFE 100%)',
+      outline: '1px solid rgba(0,185,180,0.20)', outlineOffset: -1,
+      overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <button onClick={() => setOpen(o => !o)} style={{
+        width: '100%', padding: '18px 20px', background: 'none',
+        border: 'none', cursor: 'pointer', textAlign: 'left',
+        display: 'flex', flexDirection: 'column', gap: 10,
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: '#00817D' }}>
+            СберЗдоровье
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+            <span style={{ fontSize: 26, fontWeight: 900, color: '#00817D', lineHeight: 1 }}>{TOTAL_VISITS}</span>
+            <span style={{ fontSize: 12, color: '#00B9B4', fontWeight: 600 }}>визитов</span>
+          </div>
+        </div>
+        {/* Mini liquid bar */}
+        <div style={{ height: 5, borderRadius: 999, background: 'rgba(0,185,180,0.18)', overflow: 'hidden' }}>
+          <div style={{
+            height: '100%', width: `${width}%`,
+            background: 'linear-gradient(90deg, #00B9B4, #62ECFF)',
+            borderRadius: 999, transition: 'width 0.9s cubic-bezier(0.34,1.4,0.64,1)',
+          }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 12, color: '#5C6060' }}>Обращений к специалистам</span>
+          <span style={{ fontSize: 11, color: '#00B9B4', fontWeight: 700 }}>
+            {open ? 'Свернуть ▲' : 'Подробнее ▼'}
+          </span>
+        </div>
+      </button>
+
+      {/* Scrollable detail */}
+      {open && (
+        <div style={{ borderTop: '1px solid rgba(0,185,180,0.15)', maxHeight: 280, overflowY: 'auto' }}>
+          {SBER_SPECIALISTS.map(sp => (
+            <div key={sp.name} style={{ padding: '12px 20px', borderBottom: '1px solid rgba(0,185,180,0.10)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <span style={{ fontSize: 18 }}>{sp.icon}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#2F3334', flex: 1 }}>{sp.name}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#00817D', background: 'rgba(0,185,180,0.15)', borderRadius: 999, paddingLeft: 8, paddingRight: 8, paddingTop: 2, paddingBottom: 2 }}>
+                  {sp.visits.length} раз
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {sp.visits.map((v, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 28 }}>
+                    <span style={{ fontSize: 14 }}>{v.user}</span>
+                    <span style={{ fontSize: 12, color: '#2F3334', fontWeight: 600 }}>{v.name}</span>
+                    <span style={{ fontSize: 11, color: '#A1A1AA', marginLeft: 'auto' }}>{v.date}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Главный компонент ────────────────────────────────────────────────────── */
 export default function Stats() {
   const [stats,    setStats]    = useState(null)
@@ -321,6 +412,9 @@ export default function Stats() {
               </div>
             ))}
           </div>
+
+          {/* ══ СберЗдоровье — компактная карточка со скроллом ══ */}
+          <SberZdorovyeCard />
 
         </>}
       </div>

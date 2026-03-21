@@ -1,4 +1,6 @@
-import { Bell, Plus, TrendingUp, MapPin, Footprints, Droplets, ThumbsUp, MessageCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Bell, Plus, TrendingUp, MapPin, Footprints, Droplets, ThumbsUp, MessageCircle, Zap } from 'lucide-react'
+import { api } from '../api'
 
 const challenges = [
   {
@@ -36,7 +38,71 @@ const feed = [
   },
 ]
 
+const ME_ID = 1
+
+function GroupBar({ total }) {
+  const [width, setWidth] = useState(0)
+  useEffect(() => { const t = setTimeout(() => setWidth(Math.min(100, total * 5)), 120); return () => clearTimeout(t) }, [total])
+  return (
+    <div style={{ height: 5, borderRadius: 999, background: 'rgba(255,255,255,0.20)', overflow: 'hidden' }}>
+      <div style={{
+        height: '100%', width: `${width}%`,
+        background: 'linear-gradient(90deg, rgba(255,255,255,0.7), rgba(255,255,255,1))',
+        borderRadius: 999, transition: 'width 0.9s cubic-bezier(0.34,1.4,0.64,1)',
+      }} />
+    </div>
+  )
+}
+
+function SegmentedBar({ count, max, color = '#21A038', delay = 0 }) {
+  const [filled, setFilled] = useState(0)
+  const segments = 10
+  const target = Math.round((count / Math.max(max, 1)) * segments)
+
+  useEffect(() => {
+    if (target === 0) return
+    // Ждём delay мс перед стартом анимации (чтобы данные точно загрузились)
+    const start = setTimeout(() => {
+      let i = 0
+      const iv = setInterval(() => {
+        i++
+        setFilled(i)
+        if (i >= target) clearInterval(iv)
+      }, 70)
+      return () => clearInterval(iv)
+    }, delay)
+    return () => clearTimeout(start)
+  }, [target, delay])
+
+  return (
+    <div style={{ display: 'flex', gap: 3 }}>
+      {Array.from({ length: segments }).map((_, idx) => (
+        <div key={idx} style={{
+          flex: 1, height: 5, borderRadius: 999,
+          background: idx < filled ? color : 'rgba(0,0,0,0.08)',
+          transition: 'background 0.18s',
+          boxShadow: idx < filled ? `0 0 3px ${color}55` : 'none',
+        }} />
+      ))}
+    </div>
+  )
+}
+
 export default function Home() {
+  const [stats,   setStats]   = useState(null)
+  const [users,   setUsers]   = useState([])
+
+  useEffect(() => {
+    Promise.all([api.stats(), api.users()])
+      .then(([s, u]) => { setStats(s); setUsers(u) })
+      .catch(console.error)
+  }, [])
+
+  const me      = users.find(u => u.id === ME_ID)
+  const myEntry = stats?.leaderboard?.find(l => l.user_id === ME_ID)
+  const myCount = myEntry?.activity_count || 0
+  const maxAct  = stats?.leaderboard?.[0]?.activity_count || 1
+
   return (
     <div className="page">
       {/* Top bar */}
@@ -68,9 +134,91 @@ export default function Home() {
 
         {/* Greeting */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ fontSize: 30, fontWeight: 800, color: '#2F3334', lineHeight: 1.2 }}>Привет, Александр!</div>
+          <div style={{ fontSize: 30, fontWeight: 800, color: '#2F3334', lineHeight: 1.2 }}>
+            Привет, {me?.name || 'Рома'}!
+          </div>
           <div style={{ fontSize: 16, color: '#5C6060' }}>Сегодня отличный день для новой цели.</div>
         </div>
+
+        {/* Goal + my progress card */}
+        {stats && (
+          <div style={{
+            borderRadius: 32, overflow: 'hidden',
+            boxShadow: '0px 4px 20px rgba(0,0,0,0.06)',
+          }}>
+            {/* Group goal */}
+            <div style={{
+              padding: '20px 20px 16px',
+              background: 'linear-gradient(148deg, #006F1F 0%, #00A030 100%)',
+            }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'rgba(255,255,255,0.60)', marginBottom: 6 }}>
+                Цель группы
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'white', lineHeight: 1.3, marginBottom: 14 }}>
+                {stats.group_goal}
+              </div>
+              {/* Liquid group bar */}
+              <GroupBar total={stats.total_messages} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>{stats.total_messages} активностей</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>{stats.participant_count} участника</span>
+              </div>
+            </div>
+
+            {/* All participants progress */}
+            <div style={{ background: 'white', padding: '12px 20px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: '#A1A1AA' }}>
+                Прогресс участников
+              </div>
+              {users.map((u, idx) => {
+                const entry  = stats?.leaderboard?.find(l => l.user_id === u.id)
+                const count  = entry?.activity_count || 0
+                const isMe   = u.id === ME_ID
+                const colors = ['#21A038', '#3B56C2', '#00B9B4']
+                const color  = colors[idx] || '#21A038'
+
+                return (
+                  <div key={u.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ position: 'relative' }}>
+                          <span style={{ fontSize: 18 }}>{u.emoji}</span>
+                          {isMe && (
+                            <div style={{
+                              position: 'absolute', top: -2, right: -4,
+                              width: 8, height: 8, borderRadius: 999,
+                              background: '#21A038', border: '1.5px solid white',
+                            }} />
+                          )}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#2F3334', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            {u.name}
+                            {isMe && <span style={{ fontSize: 9, fontWeight: 700, color: '#21A038', background: 'rgba(33,160,56,0.10)', borderRadius: 999, paddingLeft: 5, paddingRight: 5, paddingTop: 1, paddingBottom: 1 }}>Я</span>}
+                          </div>
+                          <div style={{ fontSize: 10, color: '#A1A1AA', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {u.goal}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Zap size={10} color={color} />
+                        <span style={{ fontSize: 12, fontWeight: 900, color }}>{count * 5}</span>
+                      </div>
+                    </div>
+                    <SegmentedBar count={count} max={maxAct} color={color} delay={300 + idx * 150} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 10, color: '#A1A1AA' }}>{count} активностей</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#777B7C' }}>
+                        {maxAct > 0 ? Math.round((count / maxAct) * 100) : 0}%
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Online + Start */}
         <div style={{

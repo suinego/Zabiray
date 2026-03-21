@@ -24,4 +24,5 @@ export const api = {
   messages:    (chatId)                        => get(`/chats/${chatId}/messages/`),
   stats:       ()                              => get('/stats/'),
   sendMessage: (chatId, userId, actionText)    => post(`/chats/${chatId}/send/`, { user_id: userId, action_text: actionText }),
+  summary:     (chatId)                        => get(`/chats/${chatId}/summary/`),
 }

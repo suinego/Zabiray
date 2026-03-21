@@ -1,6 +1,10 @@
 import Zabiray.func_response as func_response
 import pandas as pd
 
+from numpy.char import capitalize
+import Zabiray.func_response as func_response
+import pandas as pd
+
 def personal_response(user_id, action_text):
     history = pd.read_csv("messages.csv")
     user_history_indicator = (history["user_id"] == user_id)
@@ -42,9 +46,15 @@ def personal_response(user_id, action_text):
     
     # Парсим ответ
     text_part, digit_part = ai_raw_response.rsplit(':', 1)
+    digit = max(int(digit_part), 0)
+    text = text_part.strip('[]').capitalize()
+    
+    # Добавляем рекомендацию если оценка низкая
+    if digit < 3:
+        text += ". Обратитесь к нашему специалисту в <a href='https://sberhealth.ru/?utm_referrer=https%3a%2f%2fwww.google.com%2f'>СберЗдоровье</a>"
     
     # Возвращаем структурированный результат
     return {
-        'text': text_part.strip('[]'),  # убираем квадратные скобки
-        'digit': max((int(digit_part)), 0)
+        'text': text,
+        'digit': digit
     }

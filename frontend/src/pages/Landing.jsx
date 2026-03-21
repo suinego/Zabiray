@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Users, Home, Heart, Globe, ChevronRight, Check, ChevronDown } from 'lucide-react'
+import { Users, Home, Heart, Globe, ChevronRight, ChevronDown, Check } from 'lucide-react'
 
 const SBER_BONUSES = [
   { id: 'checkup',    icon: '🩺', label: 'Скидка 15% на чекап в СберЗдоровье',         tag: 'Личный' },
@@ -66,90 +66,71 @@ function ScenarioSheet({ onClose, onSelect }) {
   )
 }
 
-function BonusSelect({ value, onChange }) {
+function BonusSection({ title, bonuses, accentColor, selected, onSelect }) {
   const [open, setOpen] = useState(false)
-  const selected = SBER_BONUSES.find(b => b.id === value) || SBER_BONUSES[0]
-
-  const personalBonuses = SBER_BONUSES.filter(b => b.tag === 'Личный')
-  const socialBonuses   = SBER_BONUSES.filter(b => b.tag === 'Социальный')
+  const selectedBonus = bonuses.find(b => b.id === selected)
 
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Trigger */}
+    <div style={{
+      background: 'white', borderRadius: 24,
+      outline: open ? `2px solid ${accentColor}40` : '1px solid rgba(175,179,179,0.12)',
+      outlineOffset: -1, overflow: 'hidden',
+      boxShadow: open ? `0px 4px 20px ${accentColor}18` : '0px 1px 2px rgba(0,0,0,0.04)',
+      transition: 'box-shadow 0.2s, outline 0.2s',
+    }}>
+      {/* Header — trigger */}
       <button onClick={() => setOpen(o => !o)} style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: 16,
-        padding: '16px 20px', background: 'white', borderRadius: 24,
-        boxShadow: open ? '0px 0px 0px 2px #21A038' : '0px 1px 2px rgba(0,0,0,0.05)',
-        outline: '1px solid rgba(175,179,179,0.15)', outlineOffset: -1,
-        border: 'none', cursor: 'pointer', transition: 'box-shadow 0.2s',
-        textAlign: 'left',
+        width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+        padding: '16px 20px', background: 'white',
+        border: 'none', cursor: 'pointer', textAlign: 'left',
       }}>
-        <span style={{ fontSize: 28 }}>{selected.icon}</span>
+        <span style={{ fontSize: 24, flexShrink: 0 }}>{selectedBonus?.icon}</span>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5,
-            color: selected.tag === 'Личный' ? '#2B47B4' : '#00B9B4', marginBottom: 2 }}>
-            {selected.tag}
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.2, color: accentColor, marginBottom: 2 }}>
+            {title}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#2F3334', lineHeight: 1.3 }}>{selected.label}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#2F3334', lineHeight: 1.3 }}>
+            {selectedBonus?.label}
+          </div>
         </div>
-        <ChevronDown size={18} color="#777B7C" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
+        <ChevronDown size={16} color="#A1A1AA" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
       </button>
 
-      {/* Dropdown */}
+      {/* Expandable list */}
       {open && (
-        <div style={{
-          position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
-          background: 'white', borderRadius: 24, zIndex: 200,
-          boxShadow: '0px 8px 30px rgba(0,0,0,0.12)', overflow: 'hidden',
-        }}>
-          {/* Personal */}
-          <div style={{ padding: '12px 20px 6px', fontSize: 10, fontWeight: 700,
-            textTransform: 'uppercase', letterSpacing: 1, color: '#2B47B4' }}>
-            Личные бонусы
-          </div>
-          {personalBonuses.map(b => (
-            <button key={b.id} onClick={() => { onChange(b.id); setOpen(false) }} style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-              padding: '12px 20px',
-              background: value === b.id ? 'rgba(33,160,56,0.06)' : 'white',
-              border: 'none', cursor: 'pointer', textAlign: 'left',
-              borderLeft: value === b.id ? '3px solid #21A038' : '3px solid transparent',
-              transition: 'background 0.15s',
-            }}>
-              <span style={{ fontSize: 22 }}>{b.icon}</span>
-              <span style={{ fontSize: 13, color: '#2F3334', lineHeight: 1.3 }}>{b.label}</span>
-              {value === b.id && <Check size={14} color="#21A038" style={{ marginLeft: 'auto', flexShrink: 0 }} />}
-            </button>
-          ))}
-          {/* Social */}
-          <div style={{ padding: '12px 20px 6px', fontSize: 10, fontWeight: 700,
-            textTransform: 'uppercase', letterSpacing: 1, color: '#00B9B4',
-            borderTop: '1px solid #F4F4F5', marginTop: 4 }}>
-            Социальные бонусы
-          </div>
-          {socialBonuses.map(b => (
-            <button key={b.id} onClick={() => { onChange(b.id); setOpen(false) }} style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-              padding: '12px 20px',
-              background: value === b.id ? 'rgba(0,185,180,0.06)' : 'white',
-              border: 'none', cursor: 'pointer', textAlign: 'left',
-              borderLeft: value === b.id ? '3px solid #00B9B4' : '3px solid transparent',
-              transition: 'background 0.15s',
-            }}>
-              <span style={{ fontSize: 22 }}>{b.icon}</span>
-              <span style={{ fontSize: 13, color: '#2F3334', lineHeight: 1.3 }}>{b.label}</span>
-              {value === b.id && <Check size={14} color="#00B9B4" style={{ marginLeft: 'auto', flexShrink: 0 }} />}
-            </button>
-          ))}
+        <div style={{ borderTop: '1px solid #F4F4F5' }}>
+          {bonuses.map((b, i) => {
+            const active = selected === b.id
+            return (
+              <button key={b.id} onClick={() => { onSelect(b.id); setOpen(false) }} style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                padding: '12px 20px',
+                background: active ? `${accentColor}0D` : 'white',
+                borderTop: i === 0 ? 'none' : '1px solid #F4F4F5',
+                borderRight: 'none', borderBottom: 'none',
+                borderLeft: active ? `3px solid ${accentColor}` : '3px solid transparent',
+                cursor: 'pointer', textAlign: 'left',
+                transition: 'background 0.15s',
+              }}>
+                <span style={{ fontSize: 22, flexShrink: 0 }}>{b.icon}</span>
+                <span style={{ fontSize: 13, color: '#2F3334', lineHeight: 1.35, flex: 1 }}>{b.label}</span>
+                {active && <Check size={14} color={accentColor} style={{ flexShrink: 0 }} />}
+              </button>
+            )
+          })}
         </div>
       )}
     </div>
   )
 }
 
+const PERSONAL_BONUSES = SBER_BONUSES.filter(b => b.tag === 'Личный')
+const SOCIAL_BONUSES   = SBER_BONUSES.filter(b => b.tag === 'Социальный')
+
 export default function Landing({ onEnter }) {
-  const [sheet, setSheet] = useState(null)
-  const [bonus, setBonus] = useState('checkup')
+  const [sheet,         setSheet]         = useState(null)
+  const [personalBonus, setPersonalBonus] = useState('checkup')
+  const [socialBonus,   setSocialBonus]   = useState('donate_kids')
 
   return (
     <div className="page" style={{ background: 'white', minHeight: '100svh' }}>
@@ -213,37 +194,34 @@ export default function Landing({ onEnter }) {
         </div>
 
         {/* Bonus select */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2.4, color: '#5C6060', paddingLeft: 4 }}>
             Выберите ваш бонус
           </div>
-          <BonusSelect value={bonus} onChange={setBonus} />
+
+          <BonusSection
+            title="Личные бонусы"
+            bonuses={PERSONAL_BONUSES}
+            accentColor="#2B47B4"
+            selected={personalBonus}
+            onSelect={setPersonalBonus}
+          />
+
+          <BonusSection
+            title="Социальные бонусы"
+            bonuses={SOCIAL_BONUSES}
+            accentColor="#00B9B4"
+            selected={socialBonus}
+            onSelect={setSocialBonus}
+          />
+
           <div style={{ fontSize: 12, color: '#A1A1AA', paddingLeft: 4 }}>
             Бонус начисляется за выполнение командной цели
           </div>
         </div>
 
-        {/* Scenarios */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.4, color: '#5C6060', paddingLeft: 4 }}>
-            Сценарии участия
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[
-              { label: 'Друзья и коллеги', bg: '#56FF71', color: '#006019', Icon: Users },
-              { label: 'Семья',            bg: '#62ECFF', color: '#003570', Icon: Home },
-              { label: 'Комьюнити',        bg: '#ADFFC6', color: '#006019', Icon: Globe },
-            ].map(({ label, bg, color, Icon }) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderRadius: 32, background: bg }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <Icon size={20} color={color} />
-                  <span style={{ fontSize: 16, fontWeight: 700, color }}>{label}</span>
-                </div>
-                <ChevronRight size={14} color={color} />
-              </div>
-            ))}
-          </div>
-        </div>
+       
+    
       </div>
 
       {/* Fixed bottom */}
