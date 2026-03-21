@@ -1,0 +1,9 @@
+/* App-level layout */
+.app-wrapper {
+  position: relative;
+  min-height: 100svh;
+}
+
+.page-content {
+  padding-bottom: 80px;
+}
