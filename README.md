@@ -42,7 +42,7 @@ Zabiray/
 │   ├── messages.csv     — Сообщения (id, user_id, chat_id, message, date)
 │   └── generate_mock.py — Генератор тестовых данных
 └── response/
-    ├── authorization_key.txt  — Ключ GigaChat API (не коммитить!)
+    ├── authorization_key.txt
     ├── personal_response.py   — Промпт для персонального AI-ответа
     └── group_response.py      — Промпт для групповой сводки дня
 ```
