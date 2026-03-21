@@ -255,12 +255,13 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Sticky pinned area */}
       <div style={{
-        position: 'sticky', top: 64, zIndex: 40,
+        position: 'fixed', top: 64, left: '50%', transform: 'translateX(-50%)',
+        width: 390, maxWidth: '100%', zIndex: 40,
         paddingLeft: 16, paddingRight: 16, paddingTop: 10, paddingBottom: 10,
-        background: 'rgba(255,255,255,0.80)',
-        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+        background: 'rgba(255,255,255,0.92)',
+        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+        boxShadow: '0px 1px 0px rgba(0,0,0,0.06)',
         display: 'flex', flexDirection: 'column', gap: 8,
       }}>
         <div style={{ padding: 14, background: 'white', boxShadow: '0px 1px 2px rgba(0,0,0,0.05)', borderRadius: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -287,7 +288,7 @@ export default function Chat() {
       </div>
 
       {/* Messages */}
-      <div style={{ flex: 1, paddingTop: 12, paddingBottom: 8 }}>
+      <div style={{ flex: 1, paddingTop: 196, paddingBottom: 8 }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40, color: '#A1A1AA', fontSize: 14 }}>Загрузка...</div>
         ) : feed.map(m => {
