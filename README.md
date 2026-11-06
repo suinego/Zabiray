@@ -19,6 +19,21 @@
 
 Прототип: [Открыть прототип](https://stitch.withgoogle.com/preview/13372998204976024046?node-id=a84697e497184ab78ff9f6a244443129)
 
+<p align="center">
+  <img src="design/1.png" width="240">
+  <img src="design/2.png" width="240">
+  <img src="design/3.png" width="240">
+</p>
+<p align="center">
+  <img src="design/4.png" width="240">
+  <img src="design/5.png" width="240">
+  <img src="design/6.png" width="240">
+</p>
+<p align="center">
+  <img src="design/7.png" width="240">
+  <img src="design/8.png" width="240">
+  <img src="design/9.png" width="240">
+</p>
 
 ## Стек
 
