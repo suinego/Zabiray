@@ -33,6 +33,7 @@
   <img src="design/7.png" width="240">
   <img src="design/8.png" width="240">
   <img src="design/9.png" width="240">
+  <img src="design/10.png" width="240">
 </p>
 
 ## Стек
